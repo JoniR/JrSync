@@ -1,7 +1,7 @@
 JrSync
 =============
 JrSync
-- Current version: 1.00
+- Current version: 1.01
 
 PHP script which fetch Evernote note via Evernote Cloud API with certain tag.
 Fetched notes are inserted to task in Wunderlist2 web service.
@@ -31,9 +31,9 @@ Current issues
 ### Minor issues ###
 - User should able to configure what tag is fetched from Evernote instead of hardcoded todo-tag
 - User should able to configure what tag is updated to Evernote after Wunderlist import instead of hardcoded Sync-tag
-- User should able to configure what list is used in Wunderlist. Now this is hardcoded in jrsync.php and is not usable before change it
 - Much much more
 
 Version history
 -------
-Initial version 1.00
+1.00, Initial version
+1.01, Fetch default list for Wunderlist from configuration file

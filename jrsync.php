@@ -5,7 +5,7 @@ Fetched notes are inserted to task in Wunderlist2 web service.
 
 Version history:
 1.0 16.8.2013 Joni Räsänen - Initial version
-1.1 18.8.2013 Joni Räsänen - Fetch default list for Wunderlist from configuration file, variable $wlDefaultList. Issue #1
+1.01 18.8.2013 Joni Räsänen - Fetch default list for Wunderlist from configuration file, variable $wlDefaultList. Issue #1
 */
 
 /*

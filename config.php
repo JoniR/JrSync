@@ -1,7 +1,7 @@
 <?php
 /*Version history:
 1.0 16.8.2013 Joni Räsänen - Initial version
-1.1 18.8.2013 Joni Räsänen - Added $wlDefaultList for default list for Wunderlist, Issue #1
+1.01 18.8.2013 Joni Räsänen - Added $wlDefaultList for default list for Wunderlist, Issue #1
 */
 /* Evernote configurations starts
 
