@@ -15,6 +15,14 @@ Current version of used API:
 - Wunderlist2-PHP-Wrapper 1.02
 - Evernote PHP Could API 1.25
 
+Usage
+-------
+1. Download repository
+2. Edit config.php with your Evernote and Wunderlist credentials
+2.1. Note, You need Evernote developer token. You will get your own from https://sandbox.evernote.com/api/DeveloperToken.action
+3. Edit default Wunderlist list name what is suitable for you
+4. Run script `php jrsync.php`
+
 Notes
 -------
 This current version is able to fetch note from Evernote which are tagged with tag "todo" and after exportin note are tagged with tag "Synced".
@@ -25,6 +33,7 @@ Please see current issues section from below
 Current issues
 -------
 ### Major issues ###
+- Evernote authenticating with OAuth
 - Evernote note content is in enml-format. Content should be parsed before sending it to Wunderlist
 - Everenote note is tagged with Synced-tag without checking was it imported to Wunderlist succesfully
 
@@ -35,5 +44,5 @@ Current issues
 
 Version history
 -------
-1.00, Initial version
-1.01, Fetch default list for Wunderlist from configuration file
+- 1.00, Initial version
+- 1.01, Fetch default list for Wunderlist from configuration file
