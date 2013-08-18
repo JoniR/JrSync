@@ -5,6 +5,7 @@ Fetched notes are inserted to task in Wunderlist2 web service.
 
 Version history:
 1.0 16.8.2013 Joni Räsänen - Initial version
+1.1 18.8.2013 Joni Räsänen - Fetch default list for Wunderlist from configuration file, variable $wlDefaultList. Issue #1
 */
 
 /*
@@ -131,17 +132,12 @@ Version history:
 		{
 			// get available lists
 			$lists = $wunderlist->getLists();
-			
 			foreach ($lists as $v1) {
-				//print $v1['title'];
-				$id = $v1['id'];
-				$title = $v1['title'];
-				$created = $v1['created_at'];
-				//echo "Listan nimi on: $title ja se on muodostettu: $created. Listan sisäinen tunnus on $id ";
-				//echo "<br>";
+                // Fecth default list from configuration file
+                if($wlDefaultList =$v1['title']){
+                   $list_id =  $v1['id'];
+                }   
 			}
-			//TODO user should have possibilty to select list
-			$list_id = "ABmxAATn5hE";
 			//$due_date = date("Y-m-d", mktime()+(60*60*24));
 			$due_date = false;
 			$starred = false;
