@@ -6,6 +6,7 @@ Fetched notes are inserted to task in Wunderlist2 web service.
 Version history:
 1.0 16.8.2013 Joni Räsänen - Initial version
 1.01 18.8.2013 Joni Räsänen - Fetch default list for Wunderlist from configuration file, variable $wlDefaultList. Issue #1
+1.02 19.8.2013 Joni Räsänen - Evernote content ENML format is cleaned by strip_tags function
 */
 
 /*
@@ -109,10 +110,10 @@ Version history:
 		$note_guid = ($note->guid);
 		$note_title = ($note->title);
 		$note_tagGuids = ($note->tagGuids);
-		//TODO, NoteContent is enml format and it need to clean, see http://dev.evernote.com/doc/articles/enml.php
-		$content = $noteStore->getNoteContent($note_guid);
+		$content = $noteStore->getNoteContent($note_guid);        
 		//Collect notes to internal object
-		$jrsyncnotelist->add(new JrSyncNote($note_guid, $note_title,$content,$note_tagGuids));
+		$jrsyncnotelist->add(new JrSyncNote($note_guid,$note_title,strip_tags($content),$note_tagGuids));
+        
 	}
 /*
 	***Evernote code section ends***

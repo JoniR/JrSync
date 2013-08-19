@@ -1,7 +1,7 @@
 JrSync
 =============
 JrSync
-- Current version: 1.01
+- Current version: 1.02
 
 PHP script which fetch Evernote note via Evernote Cloud API with certain tag.
 Fetched notes are inserted to task in Wunderlist2 web service.
@@ -17,11 +17,11 @@ Current version of used API:
 
 Usage
 -------
-1. Download repository
-2. Edit config.php with your Evernote and Wunderlist credentials
-2.1. Note, You need Evernote developer token. You will get your own from https://sandbox.evernote.com/api/DeveloperToken.action
-3. Edit default Wunderlist list name what is suitable for you
-4. Run script `php jrsync.php`
+* 1. Download repository
+* 2. Edit config.php with your Evernote and Wunderlist credentials
+* 2.1. Note, You need Evernote developer token. You will get your own from https://sandbox.evernote.com/api/DeveloperToken.action
+* 3. Edit default Wunderlist list name what is suitable for you
+* 4. Run script `php jrsync.php`
 
 Notes
 -------
@@ -34,7 +34,6 @@ Current issues
 -------
 ### Major issues ###
 - Evernote authenticating with OAuth
-- Evernote note content is in enml-format. Content should be parsed before sending it to Wunderlist
 - Everenote note is tagged with Synced-tag without checking was it imported to Wunderlist succesfully
 
 ### Minor issues ###
@@ -46,3 +45,4 @@ Version history
 -------
 - 1.00, Initial version
 - 1.01, Fetch default list for Wunderlist from configuration file
+- 1.02, Evernote content ENML format is cleaned by strip_tags function
