@@ -8,12 +8,12 @@ Version history:
 1.01 18.8.2013 Joni Räsänen - Fetch default list for Wunderlist from configuration file, variable $wlDefaultList. Issue #1
 1.02 19.8.2013 Joni Räsänen - Evernote content ENML format is cleaned by strip_tags function, Issue #2
 1.03 25.8.2013 Joni Räsänen - Evernote note GUID is added to Wunderlist comment
+1.04 25.8.2013 Joni Räsänen - First version, Update Evernote note with "done" tag if is is completed at Wunderlist
 */
 
 /*
 	***General code section starts***
 */
-
 	// Interal type for storing note data from Everenote
 	class JrSyncNote {
 
@@ -63,6 +63,14 @@ Version history:
 			return $japa;
 		}
 	}
+
+    // Help function for parsing strings, usage: $guid = getInnerSubstring(GUID1234GUID,'GUID');
+    function getInnerSubstring($string,$delim){
+        // http://stackoverflow.com/questions/5696412/get-substring-between-two-strings-php/5696477#5696477
+        $string = explode($delim, $string, 3); // also, we only need 2 items at most
+        // we check whether the 2nd is set and return it, otherwise we return an empty string
+        return isset($string[1]) ? $string[1] : '';
+    }
 /*
 	***General code section ends***
 */
@@ -116,6 +124,18 @@ Version history:
 		$jrsyncnotelist->add(new JrSyncNote($note_guid,$note_title,strip_tags($content),$note_tagGuids));
         
 	}
+
+    function UpdateEvernoteNoteByGUID ($GUID){
+        // TODO, Need to check if note is already updated with "Done" tag
+        global $noteStore;
+        $note = $noteStore->getNote($GUID);
+        $update_note = new EDAM\Types\Note();
+		$update_note->guid = $note->guid;
+        $update_note->title = $note->title;
+		$update_note->tagGuids = $note->tagGuids; // Try keep existing tags
+		$update_note->tagNames = array('Done'); // This is hardcoded, but maybe we can use some conf file
+		$updatedNote = $noteStore->updateNote($update_note);
+    }
 /*
 	***Evernote code section ends***
 */
@@ -124,22 +144,16 @@ Version history:
 /*
 	***Wunderlist code section starts***
 */
+    //Connect to Wunderlist
+    include_once('wunderlist_init.php');
+
 	// Add note only if there is something new
 	if ($jrsyncnotelist->Count() > 0) {
-		//Connect to Wunderlist
-		include_once('wunderlist_init.php');
 		
 		// Try & Catch
 		try
 		{
-			// get available lists
-			$lists = $wunderlist->getLists();
-			foreach ($lists as $v1) {
-                // Fecth default list from configuration file
-                if($wlDefaultList =$v1['title']){
-                   $list_id =  $v1['id'];
-                }   
-			}
+            $list_id = GetDefaultWunderTaskList($wunderlist);
 			//$due_date = date("Y-m-d", mktime()+(60*60*24));
 			$due_date = false;
 			$starred = false;
@@ -176,6 +190,62 @@ Version history:
 			// $e->getCode() contains the error code	
 		}
 	}
+
+    // Get complete tasks from Wunderlist and mark them as "Done" in Evernote
+    try
+	{
+        $w_list_id = GetDefaultWunderTaskList($wunderlist);
+        $w_completed_tasks = array();
+        if ($w_list_id != ""){
+            // get available tasks // parameter: // 1: list_id // 2: include completed tasks? true / false
+            $w_taskslist = $wunderlist->getTasksByList($w_list_id, true);
+            //$w_tasks = $wunderlist->getTasks(true);
+            echo '<pre>';
+            
+            //var_dump($w_tasks);
+            $w_tasks =  $w_taskslist['tasks'];
+            foreach ($w_tasks as $w_task) {
+                if($w_task['completed_at'] != NULL){
+                    $w_completed_tasks[] =getInnerSubstring($w_task['note'],'GUID');
+                }
+            }
+            // Update tag only if we have complete items
+            if (count($w_completed_tasks) >0){
+                foreach ($w_completed_tasks as $w_complete_task) {
+                    UpdateEvernoteNoteByGUID ($w_complete_task);
+                }
+            }
+        }   
+        
+	}
+	catch(Exception $e)
+	{
+		echo $e->getMessage();
+		//echo $e->getCode();// contains the error code	
+	}
+
+    function GetDefaultWunderTaskList($wunderlist){
+        global $wlDefaultList;
+        $list_id =""; // Return empty if we cannot find list
+        // Try & Catch
+        try
+        {
+            // get available lists
+            $lists = $wunderlist->getLists();
+            foreach ($lists as $v1) {
+                // Fecth default list from configuration file
+                if($wlDefaultList == $v1['title']){
+                   $list_id =  $v1['id'];
+                }   
+			}
+            return $list_id;
+        }
+        catch(Exception $e)
+        {
+            echo $e->getMessage();
+            // $e->getCode() contains the error code	
+        }
+    }
 	
 /*
 	***Wunderlist code section ends***
