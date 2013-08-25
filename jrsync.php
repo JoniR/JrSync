@@ -6,7 +6,8 @@ Fetched notes are inserted to task in Wunderlist2 web service.
 Version history:
 1.0 16.8.2013 Joni Räsänen - Initial version
 1.01 18.8.2013 Joni Räsänen - Fetch default list for Wunderlist from configuration file, variable $wlDefaultList. Issue #1
-1.02 19.8.2013 Joni Räsänen - Evernote content ENML format is cleaned by strip_tags function
+1.02 19.8.2013 Joni Räsänen - Evernote content ENML format is cleaned by strip_tags function, Issue #2
+1.03 25.8.2013 Joni Räsänen - Evernote note GUID is added to Wunderlist comment
 */
 
 /*
@@ -153,6 +154,10 @@ Version history:
 				$addTask = $wunderlist->addTask($wunder_title, $list_id, $due_date, $starred);
 				// The task details are returned if the request was succesfull
 				$wunder_task_id = $addTask['id'];
+                
+                //  Add Evernote GUID to task comment
+                $wunder_comment = $wunder_comment."\nEvernote:GUID".$wunder_guid."GUID";
+                
 				$addNoteToTask = $wunderlist->addNoteToTask($wunder_task_id, $wunder_comment);
 				
 				//TODO, Check $addTask and $addNoteToTask result if adding task was really successfull
