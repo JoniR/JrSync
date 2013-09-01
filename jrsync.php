@@ -8,8 +8,9 @@ Version history:
 1.01 18.08.2013 Joni Räsänen - Fetch default list for Wunderlist from configuration file, variable $wlDefaultList. Issue #1
 1.02 19.08.2013 Joni Räsänen - Evernote content ENML format is cleaned by strip_tags function, Issue #2
 1.03 25.08.2013 Joni Räsänen - Evernote note GUID is added to Wunderlist comment
-1.04 25.08.2013 Joni Räsänen - First version, Update Evernote note with "done" tag if is is completed at Wunderlist
+1.04 25.08.2013 Joni Räsänen - First version, Update Evernote note with "done" tag if it is completed at Wunderlist
 1.05 01.09.2013 Joni Räsänen - All hardcoded tags etc are moved to config.php and they are configure by user, issues #5 and #6
+1.06 01.09.2013 Joni Räsänen - Update Evernote note with "done" tag only if it is missing and task is completed
 */
 
 /*
@@ -98,18 +99,6 @@ Version history:
 		//print "    * " . $notebook->name . "\n";
 	}
 	
-	// Get list of tags
-	$tagGuids = $noteStore->listTags();
-	foreach ($tagGuids as $tag) {
-		$tag_guid = ($tag->guid);
-		$tag_name = ($tag->name);
-		if ($tag_name == "todo") {
-				$todo_tag = $tag_guid;
-			}
-		if ($tag_name == "Synced") {
-				$synced_tag = $tag_guid;
-			}
-		}
 	/* ********* This is only for testing purpose *********/
 
 	// Filter for tags
@@ -134,16 +123,32 @@ Version history:
 	}
 
     function UpdateEvernoteNoteByGUID ($GUID){
-        // TODO, Need to check if note is already updated with "Done" tag
         global $noteStore;
         global $evernote_DoneTag;
+        global $evernote_SyncedTag;
+        
+        // Get note by GUID and fill variables
         $note = $noteStore->getNote($GUID);
         $update_note = new EDAM\Types\Note();
-		$update_note->guid = $note->guid;
+        $update_note->guid = $note->guid;
         $update_note->title = $note->title;
-		$update_note->tagGuids = $note->tagGuids; // Try keep existing tags
-		$update_note->tagNames = array($evernote_DoneTag);
-		$updatedNote = $noteStore->updateNote($update_note);
+        $update_note->tagGuids = $note->tagGuids; // Try keep existing tags
+        $update_note->tagNames = array($evernote_DoneTag); // This is new "Done"-tag
+        
+        // Get "Done"-tag GUID
+        $tagGuids = $noteStore->listTags();
+        foreach ($tagGuids as $tag) {
+            if (($tag->name) == $evernote_DoneTag) {
+                $done_tag = ($tag->guid);
+            }
+        }
+        
+        // If note have "Done"-tag already, it is not updated again
+        foreach ($note->tagGuids as $Notetag) {
+            if ($Notetag ==$done_tag){return;}
+        }
+        
+        $updatedNote = $noteStore->updateNote($update_note);
     }
 /*
 	***Evernote code section ends***
@@ -209,7 +214,6 @@ Version history:
             // get available tasks // parameter: // 1: list_id // 2: include completed tasks? true / false
             $w_taskslist = $wunderlist->getTasksByList($w_list_id, true);
             //$w_tasks = $wunderlist->getTasks(true);
-            echo '<pre>';
             
             //var_dump($w_tasks);
             $w_tasks =  $w_taskslist['tasks'];
