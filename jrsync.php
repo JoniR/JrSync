@@ -4,11 +4,12 @@ PHP script which fetch Evernote note via Evernote Cloud API with certain tag.
 Fetched notes are inserted to task in Wunderlist2 web service.
 
 Version history:
-1.0 16.8.2013 Joni Räsänen - Initial version
-1.01 18.8.2013 Joni Räsänen - Fetch default list for Wunderlist from configuration file, variable $wlDefaultList. Issue #1
-1.02 19.8.2013 Joni Räsänen - Evernote content ENML format is cleaned by strip_tags function, Issue #2
-1.03 25.8.2013 Joni Räsänen - Evernote note GUID is added to Wunderlist comment
-1.04 25.8.2013 Joni Räsänen - First version, Update Evernote note with "done" tag if is is completed at Wunderlist
+1.00 16.08.2013 Joni Räsänen - Initial version
+1.01 18.08.2013 Joni Räsänen - Fetch default list for Wunderlist from configuration file, variable $wlDefaultList. Issue #1
+1.02 19.08.2013 Joni Räsänen - Evernote content ENML format is cleaned by strip_tags function, Issue #2
+1.03 25.08.2013 Joni Räsänen - Evernote note GUID is added to Wunderlist comment
+1.04 25.08.2013 Joni Räsänen - First version, Update Evernote note with "done" tag if is is completed at Wunderlist
+1.05 01.09.2013 Joni Räsänen - All hardcoded tags etc are moved to config.php and they are configure by user, issues #5 and #6
 */
 
 /*
@@ -71,6 +72,13 @@ Version history:
         // we check whether the 2nd is set and return it, otherwise we return an empty string
         return isset($string[1]) ? $string[1] : '';
     }
+
+    // Public variables from configuration file
+    global $evernote_TodoTag;    
+    global $evernote_SyncedTag;
+    
+
+
 /*
 	***General code section ends***
 */
@@ -106,8 +114,8 @@ Version history:
 
 	// Filter for tags
 	$filter = new EDAM\NoteStore\NoteFilter();
-	$filter->words ="tag:todo -tag:Synced"; //TODO, User should have possible configure this
-	
+    $filter->words ="tag:$evernote_TodoTag -tag:$evernote_SyncedTag";
+
 	// Get notes
 	$notelist = $noteStore->findNotes($filter,0,100);
 	$notes = ($notelist->notes);
@@ -128,12 +136,13 @@ Version history:
     function UpdateEvernoteNoteByGUID ($GUID){
         // TODO, Need to check if note is already updated with "Done" tag
         global $noteStore;
+        global $evernote_DoneTag;
         $note = $noteStore->getNote($GUID);
         $update_note = new EDAM\Types\Note();
 		$update_note->guid = $note->guid;
         $update_note->title = $note->title;
 		$update_note->tagGuids = $note->tagGuids; // Try keep existing tags
-		$update_note->tagNames = array('Done'); // This is hardcoded, but maybe we can use some conf file
+		$update_note->tagNames = array($evernote_DoneTag);
 		$updatedNote = $noteStore->updateNote($update_note);
     }
 /*
@@ -180,7 +189,7 @@ Version history:
 				$update_note->guid = $wunder_guid;
 				$update_note->title = $wunder_title;
 				$update_note->tagGuids = $wunder_tags; // Try keep existing tags
-				$update_note->tagNames = array('Synced'); // This is hardcoded, but maybe we can use some conf file
+				$update_note->tagNames = array($evernote_SyncedTag);
 				$updatedNote = $noteStore->updateNote($update_note);
 			}
 		}
